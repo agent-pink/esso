@@ -7,12 +7,12 @@ import (
 	"net/http"
 )
 
-func New() *mux.Router {
-	r := mux.NewRouter()
-	r.HandleFunc("/", ArticlesHandler)
-	r.HandleFunc("/articles/", ArticlesHandler)
-	r.HandleFunc("/articles/{slug}", ArticleHandler)
-	return r
+var App = mux.NewRouter()
+
+func init() {
+	App.HandleFunc("/", ArticlesHandler)
+	App.HandleFunc("/articles/", ArticlesHandler)
+	App.HandleFunc("/articles/{slug}", ArticleHandler)
 }
 
 var baseTpl = template.Must(template.ParseFiles("templates/base.html"))
