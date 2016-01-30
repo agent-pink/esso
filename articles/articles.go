@@ -34,6 +34,20 @@ type Meta struct {
 	Posted              time.Time
 }
 
+var chicago *time.Location
+
+func init() {
+	var err error
+	chicago, err = time.LoadLocation("America/Chicago")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (m *Meta) Time() time.Time {
+	return m.Posted.In(chicago)
+}
+
 type Articles []*Article
 
 func (a Articles) Len() int {
