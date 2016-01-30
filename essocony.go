@@ -1,7 +1,7 @@
-package essocony
+package esso
 
 import (
-	"github.com/agent-pink/essocony-lib/articles"
+	"github.com/agent-pink/esso/articles"
 	"github.com/gorilla/mux"
 	"html/template"
 	"net/http"
@@ -13,7 +13,7 @@ func init() {
 	App.HandleFunc("/", ArticlesHandler)
 	App.HandleFunc("/articles/", ArticlesHandler)
 	App.HandleFunc("/articles/{slug}", ArticleHandler)
-	App.HandleFunc("/static/{page:.*}", http.FileServer(http.Dir("public")))
+	App.Handle("/static/{page:.*}", http.FileServer(http.Dir("public")))
 }
 
 var baseTpl = template.Must(template.ParseFiles("templates/base.html"))
