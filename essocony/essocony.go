@@ -13,6 +13,7 @@ func init() {
 	App.HandleFunc("/", ArticlesHandler)
 	App.HandleFunc("/articles/", ArticlesHandler)
 	App.HandleFunc("/articles/{slug}", ArticleHandler)
+	App.HandleFunc("/static/{page:.*}", http.FileServer(http.Dir("public")))
 }
 
 var baseTpl = template.Must(template.ParseFiles("templates/base.html"))
