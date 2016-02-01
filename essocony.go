@@ -8,7 +8,16 @@ import (
 
 var App = mux.NewRouter()
 
+var ArticleSlice Articles
+var ArticleHash ArticleMap
+
 func init() {
+	var err error
+	ArticleSlice, err = LoadArticles("articles/*.html")
+	if err != nil {
+		panic(err)
+	}
+	ArticleHash = ArticleSlice.ArticleMap()
 	App.HandleFunc("/", ArticlesHandler)
 	App.HandleFunc("/articles/", ArticlesHandler)
 	App.HandleFunc("/articles/{slug}", ArticleHandler)
@@ -17,22 +26,10 @@ func init() {
 
 var baseTpl = template.Must(template.ParseFiles("templates/base.html"))
 
-var articleList Articles
-var articleMap ArticleMap
-
-func init() {
-	var err error
-	articleList, err = LoadArticles("articles/*.html")
-	if err != nil {
-		panic(err)
-	}
-	articleMap = articleList.ArticleMap()
-}
-
 var articlesTpl = template.Must(template.Must(baseTpl.Clone()).ParseFiles("templates/article.html"))
 
 func ArticlesHandler(w http.ResponseWriter, r *http.Request) {
-	data := Page{Articles: articleList, Title: "Essocony: All Articles"}
+	data := Page{Articles: ArticleSlice, Title: "Essocony: All Articles"}
 	articleTpl.Execute(w, data)
 }
 
@@ -40,7 +37,7 @@ var articleTpl = template.Must(template.Must(baseTpl.Clone()).ParseFiles("templa
 
 func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 	slug := mux.Vars(r)["slug"]
-	article, found := articleMap[slug]
+	article, found := ArticleHash[slug]
 	if !found {
 		http.NotFound(w, r)
 		return
