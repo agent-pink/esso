@@ -1,7 +1,6 @@
 package esso
 
 import (
-	"github.com/agent-pink/esso/articles"
 	"github.com/gorilla/mux"
 	"html/template"
 	"net/http"
@@ -18,12 +17,12 @@ func init() {
 
 var baseTpl = template.Must(template.ParseFiles("templates/base.html"))
 
-var articleList articles.Articles
-var articleMap articles.ArticleMap
+var articleList Articles
+var articleMap ArticleMap
 
 func init() {
 	var err error
-	articleList, err = articles.LoadArticles("articles/*.html")
+	articleList, err = LoadArticles("articles/*.html")
 	if err != nil {
 		panic(err)
 	}
@@ -33,7 +32,7 @@ func init() {
 var articlesTpl = template.Must(template.Must(baseTpl.Clone()).ParseFiles("templates/article.html"))
 
 func ArticlesHandler(w http.ResponseWriter, r *http.Request) {
-	data := articles.Page{Articles: articleList, Title: "Essocony: All Articles"}
+	data := Page{Articles: articleList, Title: "Essocony: All Articles"}
 	articleTpl.Execute(w, data)
 }
 
@@ -46,6 +45,6 @@ func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	data := articles.Page{Articles: articles.Articles{article}, Title: "Essocony: " + article.Title}
+	data := Page{Articles: Articles{article}, Title: "Essocony: " + article.Title}
 	articlesTpl.Execute(w, data)
 }
