@@ -11,6 +11,9 @@ var articleHash ArticleMap
 
 func App() *mux.Router {
 	var err error
+	baseTpl = template.Must(template.ParseFiles("templates/base.html"))
+	articleTpl = template.Must(template.Must(baseTpl.Clone()).ParseFiles("templates/article.html"))
+	articlesTpl = template.Must(template.Must(baseTpl.Clone()).ParseFiles("templates/article.html"))
 	app := mux.NewRouter()
 	articleSlice, err = LoadArticles("articles/*.html")
 	if err != nil {
@@ -24,16 +27,12 @@ func App() *mux.Router {
 	return app
 }
 
-var baseTpl = template.Must(template.ParseFiles("templates/base.html"))
-
-var articlesTpl = template.Must(template.Must(baseTpl.Clone()).ParseFiles("templates/article.html"))
+var baseTpl, articlesTpl, articleTpl *template.Template
 
 func ArticlesHandler(w http.ResponseWriter, r *http.Request) {
 	data := Page{Articles: articleSlice, Title: "Essocony: All Articles"}
 	articleTpl.Execute(w, data)
 }
-
-var articleTpl = template.Must(template.Must(baseTpl.Clone()).ParseFiles("templates/article.html"))
 
 func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 	slug := mux.Vars(r)["slug"]
