@@ -6,22 +6,22 @@ import (
 	"net/http"
 )
 
-var App = mux.NewRouter()
+var articleSlice Articles
+var articleHash ArticleMap
 
-var ArticleSlice Articles
-var ArticleHash ArticleMap
-
-func init() {
+func App() *mux.Router {
 	var err error
-	ArticleSlice, err = LoadArticles("articles/*.html")
+	app := mux.NewRouter()
+	articleSlice, err = LoadArticles("articles/*.html")
 	if err != nil {
 		panic(err)
 	}
-	ArticleHash = ArticleSlice.ArticleMap()
-	App.HandleFunc("/", ArticlesHandler)
-	App.HandleFunc("/articles/", ArticlesHandler)
-	App.HandleFunc("/articles/{slug}", ArticleHandler)
-	App.Handle("/static/{page:.*}", http.FileServer(http.Dir("public")))
+	articleHash = articleSlice.ArticleMap()
+	app.HandleFunc("/", ArticlesHandler)
+	app.HandleFunc("/articles/", ArticlesHandler)
+	app.HandleFunc("/articles/{slug}", ArticleHandler)
+	app.Handle("/static/{page:.*}", http.FileServer(http.Dir("public")))
+	return app
 }
 
 var baseTpl = template.Must(template.ParseFiles("templates/base.html"))
@@ -29,7 +29,7 @@ var baseTpl = template.Must(template.ParseFiles("templates/base.html"))
 var articlesTpl = template.Must(template.Must(baseTpl.Clone()).ParseFiles("templates/article.html"))
 
 func ArticlesHandler(w http.ResponseWriter, r *http.Request) {
-	data := Page{Articles: ArticleSlice, Title: "Essocony: All Articles"}
+	data := Page{Articles: articleSlice, Title: "Essocony: All Articles"}
 	articleTpl.Execute(w, data)
 }
 
@@ -37,7 +37,7 @@ var articleTpl = template.Must(template.Must(baseTpl.Clone()).ParseFiles("templa
 
 func ArticleHandler(w http.ResponseWriter, r *http.Request) {
 	slug := mux.Vars(r)["slug"]
-	article, found := ArticleHash[slug]
+	article, found := articleHash[slug]
 	if !found {
 		http.NotFound(w, r)
 		return
